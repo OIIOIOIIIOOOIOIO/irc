@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="title">IRC Chat | </title>
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        section {
+            display: block;
+        }
+
+        body {
+            line-height: 1;
+        }
+
+        ol,
+        ul {
+            list-style: none;
+        }
+
+        blockquote,
+        q {
+            quotes: none;
+        }
+
+        blockquote:before,
+        blockquote:after,
+        q:before,
+        q:after {
+            content: '';
+            content: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        body {
+            font-family: monospace;
+            margin: 20px;
+        }
+
+        .form_list {
+            display: flex;
+            flex-direction: inherit;
+            margin-top: 10px;
+        }
+
+        .form_list form {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 10px;
+        }
+
+        .form_list input {
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form_list button {
+            padding: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            margin-right: 5px;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .message-list .message {
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 80%;
+        }
+
+        .message-list .message.sent {
+            align-self: flex-end;
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1 id="nametitle">IRC Chat | </h1>
+            <div class="clients-count" id="listen">Number of clients in the room: 0</div>
+        </header>
+        <div class="form_list">
+            <form id="message-form"><input type="text" id="message-input" placeholder="Type your message here"><button
+                    type="submit">Send</button></form>
+            <form id="set-sn"><input type="text" id="sn" placeholder="Enter serial number"><button type="submit">Set
+                    SN</button></form>
+        </div>
+        <div class="message-list" id="messages"></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <script>
+        const socket = io();
+        let roomId = window.location.pathname.split('/').pop();
+        let SN_KEY = '';
+        let GENNL = '';
+
+        // set title and nametitle
+        document.getElementById('title').textContent = `IRC Chat | ${roomId}`;
+        document.getElementById('nametitle').textContent = `IRC Chat | ${roomId}`;
+
+        function generateNL(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        const setSnForm = document.getElementById('set-sn');
+        const setUsername = document.getElementById('username');
+        setSnForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const snInput = document.getElementById('sn');
+            const snButton = setSnForm.querySelector('button');
+            if (snInput.disabled) {
+                snInput.disabled = false;
+                snButton.textContent = 'Set SN';
+                localStorage.removeItem('SN_KEY');
+            } else {
+                SN_KEY = snInput.value;
+                localStorage.setItem('SN_KEY', SN_KEY);
+                snInput.disabled = true;
+                snButton.textContent = 'Change SN';
+            }
+        });
+
+        const messageForm = document.getElementById('message-form');
+        messageForm.addEventListener('submit', (e) => {
+
+            if (SN_KEY === '') {
+                alert('Please set serial number');
+                return;
+            }
+
+            e.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+            messageInput.value = '';
+            GENNL = generateNL(Math.floor(Math.random() * 32) + 1);
+            const encryptedMessage = CryptoJS.AES.encrypt(GENNL + "<:0>" + message, SN_KEY).toString();
+            socket.emit('chat message', encryptedMessage, roomId);
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.emit('join', roomId);
+        });
+
+        socket.on('clients', (clients) => {
+            document.getElementById('listen').innerHTML = `<h2>Number of clients in the room: ${clients} / 2</h2>`;
+        });
+
+        socket.on('full-room', () => {
+            alert('Room is full');
+        });
+
+        socket.on('room-id', (roomId) => {
+            document.title = `IRC Chat | ${roomId}`;
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        socket.on('chat message', (msg) => {
+            const decryptedMessage = CryptoJS.AES.decrypt(msg, SN_KEY).toString(CryptoJS.enc.Utf8);
+            displayMessage(decryptedMessage);
+        });
+
+        function displayMessage(message) {
+            const messages = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            let message_show = '';
+            if (message.split("<:0>")[0] === GENNL) {
+                message_show = `${new Date().toLocaleTimeString()} <b>You: </b>${message.split("<:0>")[1]}`;
+            } else {
+                message_show = `${new Date().toLocaleTimeString()} <b>Stranger: </b>${message.split("<:0>")[1]}`;
+            }
+            messageElement.innerHTML = message_show;
+            messages.appendChild(messageElement);
+        }
+    </script>
+</body>
+
+</html>

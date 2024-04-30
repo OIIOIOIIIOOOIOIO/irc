@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIIO CHAT IRC</title>
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        /* HTML5 display-role reset for older browsers */
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        section {
+            display: block;
+        }
+
+        body {
+            line-height: 1;
+        }
+
+        ol,
+        ul {
+            list-style: none;
+        }
+
+        blockquote,
+        q {
+            quotes: none;
+        }
+
+        blockquote:before,
+        blockquote:after,
+        q:before,
+        q:after {
+            content: '';
+            content: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        body {
+            font-family: monospace;
+            margin: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: row;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Wellcome to irc.oiioioiiioooioio.download IRC Chat</h1>
+    <p>Create or Join a room to start chatting</p>
+    <p>P2P Chatting with SN Key</p>
+    <br>
+    <h2>How to use</h2>
+    <p>1. Create or Join a room</p>
+    <p>2. Share the room name with your friends</p>
+    <p>3. Create or Set SN Key for your room and share with your friends</p>
+    <p>4. Start chatting</p>
+    <p>5. Enjoy!</p>
+
+    <br>
+    <!-- privacypolicy -->
+    <h2>Privacy Policy</h2>
+    <p>-> It's easy, don't keep anything, just use it. There's no way to keep various logs. Plus, because you are the one who set the SN Key, we cannot unpack it. So, don't worry about your privacy.</p>
+    <br>
+    <!-- termofservice -->
+    <h2>Term of Service</h2> 
+    <p>-> UP TO YOU!</p>
+
+    <form>
+        <input type="text" name="room" placeholder="Room name" required>
+        <button type="submit">Create or Join</button>
+    </form>
+    <script>
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const room = e.target.room.value;
+            window.location.href = `/room/${room}`;
+        });
+    </script>
+</body>
+
+</html>
